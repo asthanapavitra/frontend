@@ -1,60 +1,88 @@
-import React, { useState } from 'react'
-import './Login.css'
-import { FaUser, FaLock, FaEnvelope} from "react-icons/fa";
+import React, { useState } from 'react';
+import './Login.css';
+import { FaEnvelope } from "react-icons/fa";
+import axios from 'axios';
+import { GoEyeClosed, GoEye } from "react-icons/go";
 
-const Login=()=>{
+const Login = () => {
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLock, setIsLock] = useState(true);
 
-  const [isRegister, setISRegister]=useState(false);
+  const server = "http://localhost:4000/";
 
-  const toggleForm = ()=>{
-    setISRegister(!isRegister)
-  }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const endpoint = isRegister ? 'register' : 'login';
+    try {
+      const response = await axios.post(server + endpoint, { username: email, password });
 
-  const [isLock, setIsLock]=useState(true);
+      if (response.status === 200) {
+        window.location.href = '/dashboard'; // Redirect upon successful login
+      } else {
+        console.error('Login failed');
+        // Handle login failure
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+    }
+  };
 
-  const toggleLock = () =>{
+  const handleGoogleClick = async() => {
+    const response=await axios.get("http://localhost:4000/auth/google");
+    if (response.status === 200) {
+      window.location.href = '/dashboard'; // Redirect upon successful login
+    } else {
+      console.error('Login failed');
+      // Handle login failure
+    }
+  };
+
+  const toggleForm = () => {
+    setIsRegister(!isRegister);
+  };
+
+  const toggleLock = () => {
     setIsLock(!isLock);
-  }
+  };
 
-  return(
+  return (
     <div className="login-page">
       <div className='wrapper'>
-      <form action="">
-        <h1>{isRegister?'Create Account':'Login'}</h1>
-        {isRegister && (
+        <form onSubmit={handleLogin}>
+          <h1>{isRegister ? 'Create Account' : 'Login'}</h1>
           <div className='input-box'>
-            <input type="email" placeholder='Email' required/>
+            <input type="email" onChange={(e) => setEmail(e.target.value)} placeholder='Email' value={email} required />
             <FaEnvelope className='icon' />
           </div>
-        )}
-        <div className='input-box'>
-          <input type="text" placeholder='Username' required/>
-          <FaUser className='icon' />
-        </div>
-        <div className='input-box'>
-          <input type={isLock?'password':'text'} placeholder='Password' required/>
-          <FaLock onClick={toggleLock} className='icon'/>
-        </div>
-        {!isRegister && (
-          <div className="remember-forgot">
-          <label htmlFor="">
-            <input type="checkbox" />
-            Remember me
-          </label>
-          <a href="#">Forgot password</a>
-        </div>
-        )}
-
-        <button type="submit">{isRegister?'Register':'Login'}</button>
-
-        <div className="register-link">
-          <p>{isRegister?'Already have an account?  ': "Don't have an account?  "}<a href="#" onClick={toggleForm}>{isRegister?'Login':'Register'}</a></p>
-        </div>
-      </form>
+          <div className='input-box'>
+            <input type={isLock ? 'password' : 'text'} onChange={(e) => setPassword(e.target.value)} placeholder='Password' value={password} required />
+            {isLock ? <GoEyeClosed onClick={toggleLock} className='icon' /> : <GoEye onClick={toggleLock} className='icon' />}
+          </div>
+          {!isRegister && (
+            <div className="remember-forgot">
+              <label>
+                <input type="checkbox" />
+                Remember me
+              </label>
+              <a href="#">Forgot password</a>
+            </div>
+          )}
+          <button type="submit">{isRegister ? 'Register' : 'Login'}</button>
+          <div className="register-link">
+            <p>{isRegister ? 'Already have an account?  ' : "Don't have an account?  "}
+              <a href="#" onClick={toggleForm}>{isRegister ? 'Login' : 'Register'}</a>
+            </p>
+            <a className="btn btn-block google" onClick={handleGoogleClick} role="button">
+              <i className="fab fa-google google-icon"></i>
+              {isRegister ? "Sign Up with Google" : "Login with Google"}
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
-    </div>
-    
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

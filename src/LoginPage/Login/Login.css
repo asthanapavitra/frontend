@@ -184,7 +184,14 @@ code {
       font-size: 13px;
     }
   }
+.google{
+  color: white;
+  text-align: center;
+  font-size: 14.5px;
 
-
+}
+.google-icon{
+  padding: 5px;
+}
   
   
